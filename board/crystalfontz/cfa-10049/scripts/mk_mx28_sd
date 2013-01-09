@@ -61,6 +61,7 @@ function print_usage() {
     echo "         -n        Do nothing. Just echo intended actions."
     echo "         -d        Use HAB disabled boot images."
     echo "         -u        Place U-boot on the SD card instead of Linux."
+    echo "         -b        Place barebox on the SD card instead of Linux."
     echo "         -x        Enable expert mode (see below)."
     echo -e ""
     echo -e "Run this script in the ltib directory."
@@ -186,7 +187,7 @@ n
 p
 3
 
-+128M
++512M
 t
 3
 83
