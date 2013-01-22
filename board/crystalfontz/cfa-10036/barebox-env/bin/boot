@@ -1,0 +1,58 @@
+#!/bin/sh
+
+verbose=
+dryrun=
+
+usage="
+$0 [OPTIONS] [source]\n
+ -v  verbose\n
+ -d  dryrun\n
+ -l  list boot sources\n
+ -h  help"
+
+for i in /env/boot/*; do
+	basename $i s
+	sources="$sources$s "
+done
+
+while getopt "vdhl" opt; do
+	if [ ${opt} = v ]; then
+		if [ -n "$verbose" ]; then
+			verbose="-v -v"
+		else
+			verbose="-v"
+		fi
+	elif [ ${opt} = d ]; then
+		dryrun=1
+	elif [ ${opt} = l ]; then
+		echo -e "boot sources:\n$sources"
+		exit 0
+	elif [ ${opt} = h ]; then
+		echo -e "$usage"
+		exit 0
+	fi
+done
+
+# clear linux.bootargs.dyn.* and bootm.*
+global -r linux.bootargs.dyn.
+global -r bootm.
+
+if [ $# = 0 ]; then
+	scr="$global.boot.default"
+else
+	scr="$1"
+fi
+
+if [ -n "$scr" ]; then
+	if [ ! -f /env/boot/$scr ]; then
+		echo -e "/env/boot/$scr does not exist. Valid choices:\n$sources"
+		exit
+	fi
+	/env/boot/$scr
+fi
+
+if [ -n "$dryrun" ]; then
+	exit 0
+fi
+
+bootm $verbose
