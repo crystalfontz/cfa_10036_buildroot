@@ -99,4 +99,15 @@ config BR2_TARGET_BAREBOX_BAREBOXENV
 	help
 	  Install bareboxenv tool in target.
 
+config BR2_TARGET_BAREBOX_CUSTOM_ENV
+	bool "Generate an environment image"
+	help
+	  Generate a custom environment image.
+
+config BR2_TARGET_BAREBOX_CUSTOM_ENV_PATH
+	string "Environment path"
+	depends on BR2_TARGET_BAREBOX_CUSTOM_ENV
+	help
+	  Path to the custom barebox environment
+
 endif
