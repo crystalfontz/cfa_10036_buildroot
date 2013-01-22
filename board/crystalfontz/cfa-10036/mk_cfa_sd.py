@@ -25,7 +25,7 @@ def generate_partition_name(device, number):
 
 def format_device(device_path):
     fdisk_string = str("o\n"     # Create a new empty partition table
-                       "n\n"     # Create a new partition
+                       "n\n"     # Create a new partition (Bootlets)
                        "p\n"     # This partition is a primary one
                        "1\n"     # This is the partition number 1
                        "\n"      # We use the default start sector
@@ -33,20 +33,26 @@ def format_device(device_path):
                        "t\n"     # We change its type
                        "53\n"    # To 0x53 (value required by the bootlets)
 
-                       "n\n"     # Create a new partition
+                       "n\n"     # Create a new partition (Barebox env)
                        "p\n"     # This partition is a primary one
                        "2\n"     # This is the partition number 2
                        "\n"      # We use the default start sector
-                       "+32M\n"  # And a size of 32M
-                       "t\n2\n"  # We change its type
-                       "b\n"     # To 0xb (FAT32)
+                       "+512K\n" # And a size of 512kB
 
-                       "n\n"     # Create a new partition
+                       "n\n"     # Create a new partition (Boot partition)
                        "p\n"     # This partition is a primary one
                        "3\n"     # This is the partition number 3
                        "\n"      # We use the default start sector
                        "+32M\n"  # And a size of 32M
                        "t\n3\n"  # We change its type
+                       "b\n"     # To 0xb (FAT32)
+
+                       "n\n"     # Create a new partition (Rootfs)
+                       "p\n"     # This partition is a primary one
+                       "4\n"     # This is the partition number 4
+                       "\n"      # We use the default start sector
+                       "+32M\n"  # And a size of 32M
+                       "t\n4\n"  # We change its type
                        "83\n"    # To 0x83 (ext*)
 
                        "w\n")   # And we commit our changes
@@ -57,10 +63,10 @@ def format_device(device_path):
     p.communicate(input=fdisk_string)
 
     subprocess.call(["mkfs.vfat", "-nboot",
-                     generate_partition_name(device_path, 2)],
+                     generate_partition_name(device_path, 3)],
                     stdout=subprocess.PIPE)
     subprocess.call(["mkfs.ext3", "-Lrootfs",
-                     generate_partition_name(device_path, 3)],
+                     generate_partition_name(device_path, 4)],
                     stdout=subprocess.PIPE)
 
 
@@ -93,6 +99,11 @@ def write_bootstream_partition(device_file, partition, bootstream):
         with open(bootstream, 'r') as image:
             partition.write(image.read())
 
+def write_barebox_env(device_file, partition, env):
+    path = generate_partition_name(device_file, partition)
+    with open(path, 'w') as partition:
+        with open(env, 'r') as image:
+            partition.write(image.read())
 
 def copy_kernel(device_file, partition, kernel):
     path = generate_partition_name(device_file, partition)
@@ -139,6 +150,8 @@ def main():
                         help="Path to the device tree(s)", action='append')
     parser.add_argument("--rootfs", "-r",
                         help="Path to the tarball containing the rootfs")
+    parser.add_argument("--environment", "-e",
+                        help="Path to the barebox environment image")
 
     args = parser.parse_args()
 
@@ -148,14 +161,17 @@ def main():
 
     write_bootstream_partition(args.device, 1, args.bootstream)
 
+    if args.environment:
+        write_barebox_env(args.device, 2, args.environment)
+
     if args.kernel:
-        copy_kernel(args.device, 2, args.kernel)
+        copy_kernel(args.device, 3, args.kernel)
 
     if args.device_tree:
-        copy_dtb(args.device, 2, args.device_tree)
+        copy_dtb(args.device, 3, args.device_tree)
 
     if args.rootfs:
-        install_rootfs_tarball(args.device, 3, args.rootfs)
+        install_rootfs_tarball(args.device, 4, args.rootfs)
 
     print "Flashing done, you can now remove the SD Card"
 
