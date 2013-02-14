@@ -2,7 +2,7 @@
 # post-build fixups
 
 TARGET_DIR=$1
-IMAGES_DIR=$1/../images
+IMAGES_DIR=$1/boot
 BOARD_DIR=$(dirname $0)
 
 # Copy custom config files

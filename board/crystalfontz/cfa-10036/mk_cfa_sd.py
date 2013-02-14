@@ -39,34 +39,23 @@ def format_device(device_path):
                        "\n"      # We use the default start sector
                        "+512K\n" # And a size of 512kB
 
-                       "n\n"     # Create a new partition (Boot partition)
+                       "n\n"     # Create a new partition (Rootfs)
                        "p\n"     # This partition is a primary one
                        "3\n"     # This is the partition number 3
                        "\n"      # We use the default start sector
                        "+32M\n"  # And a size of 32M
                        "t\n3\n"  # We change its type
-                       "b\n"     # To 0xb (FAT32)
-
-                       "n\n"     # Create a new partition (Rootfs)
-                       "p\n"     # This partition is a primary one
-                       "4\n"     # This is the partition number 4
-                       "\n"      # We use the default start sector
-                       "+32M\n"  # And a size of 32M
-                       "t\n4\n"  # We change its type
                        "83\n"    # To 0x83 (ext*)
 
-                       "w\n")   # And we commit our changes
+                       "w\n")    # And we commit our changes
 
     p = subprocess.Popen(["fdisk", device_path],
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE)
     p.communicate(input=fdisk_string)
 
-    subprocess.call(["mkfs.vfat", "-nboot",
-                     generate_partition_name(device_path, 3)],
-                    stdout=subprocess.PIPE)
     subprocess.call(["mkfs.ext3", "-Lrootfs",
-                     generate_partition_name(device_path, 4)],
+                     generate_partition_name(device_path, 3)],
                     stdout=subprocess.PIPE)
 
 
@@ -105,27 +94,6 @@ def write_barebox_env(device_file, partition, env):
         with open(env, 'r') as image:
             partition.write(image.read())
 
-def copy_kernel(device_file, partition, kernel):
-    path = generate_partition_name(device_file, partition)
-    mountpoint = tempfile.mkdtemp()
-    subprocess.call(["mount", path, mountpoint])
-    shutil.copy(kernel, mountpoint)
-    subprocess.call("sync")
-    subprocess.call(["umount", mountpoint])
-    os.rmdir(mountpoint)
-
-
-def copy_dtb(device_file, partition, dtbs):
-    path = generate_partition_name(device_file, partition)
-    mountpoint = tempfile.mkdtemp()
-    subprocess.call(["mount", path, mountpoint])
-    for dtb in dtbs:
-        shutil.copy(dtb, mountpoint)
-    subprocess.call("sync")
-    subprocess.call(["umount", mountpoint])
-    os.rmdir(mountpoint)
-
-
 def install_rootfs_tarball(device_file, partition, archive):
     path = generate_partition_name(device_file, partition)
     mountpoint = tempfile.mkdtemp()
@@ -145,9 +113,6 @@ def main():
     parser.add_argument("device", help="Path to the SD Card's device file")
     parser.add_argument("--bootstream", "-b",
                         help="Path to the boostream image", required=True)
-    parser.add_argument("--kernel", "-k", help="Path to the kernel image")
-    parser.add_argument("--device-tree", "-o",
-                        help="Path to the device tree(s)", action='append')
     parser.add_argument("--rootfs", "-r",
                         help="Path to the tarball containing the rootfs")
     parser.add_argument("--environment", "-e",
@@ -164,14 +129,8 @@ def main():
     if args.environment:
         write_barebox_env(args.device, 2, args.environment)
 
-    if args.kernel:
-        copy_kernel(args.device, 3, args.kernel)
-
-    if args.device_tree:
-        copy_dtb(args.device, 3, args.device_tree)
-
     if args.rootfs:
-        install_rootfs_tarball(args.device, 4, args.rootfs)
+        install_rootfs_tarball(args.device, 3, args.rootfs)
 
     print "Flashing done, you can now remove the SD Card"
 
