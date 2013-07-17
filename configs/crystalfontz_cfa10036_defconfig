@@ -1051,6 +1051,7 @@ BR2_PACKAGE_TCL_SHLIB_ONLY=y
 # tcl libraries/modules
 #
 BR2_PACKAGE_TCLLIB=y
+BR2_PACKAGE_TKLIB=y
 
 #
 # Libraries
