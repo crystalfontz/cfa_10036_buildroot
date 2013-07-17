@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Other
+Name[de]=Anderes
+Comment=Other applications and tools
+Comment[de]=Andere Anwendungen und Werkzeuge
+Icon=mbfolder.png
+Type=Directory
+Match=fallback

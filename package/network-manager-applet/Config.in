@@ -1,0 +1,14 @@
+config BR2_PACKAGE_NETWORK_MANAGER_APPLET 
+	bool "network-manager-applet" 
+	depends on BR2_PACKAGE_NETWORK_MANAGER 
+	depends on BR2_PACKAGE_ISO_CODES 
+	select BR2_PACKAGE_LIBTASN1 
+	select BR2_PACKAGE_GNOME_KEYRING 
+	select BR2_PACKAGE_NOTIFICATION_DAEMON 
+	select BR2_PACKAGE_CONSOLEKIT 
+	help 
+	  GTK+ applet for NetworkManager 
+ 
+	  http://projects.gnome.org/NetworkManager/
+ 
+

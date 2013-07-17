@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Play Doom
+Exec=/root/doom.sh
+StartupNotify=true
+Terminal=false
+Icon=/usr/share/pixmaps/doom.png
+Type=Application
+Categories=Game
