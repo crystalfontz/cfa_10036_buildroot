@@ -1,0 +1,6 @@
+#eval `dbus-launch --sh-syntax --exit-with-session`
+matchbox-desktop --icon-size 80 &
+matchbox-panel  --orientation south &
+#nm-applet &
+xmodmap /etc/X11/Xmodmap
+exec matchbox-window-manager $@

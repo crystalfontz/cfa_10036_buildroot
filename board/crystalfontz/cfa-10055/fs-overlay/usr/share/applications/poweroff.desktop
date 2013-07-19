@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Power-off
+Exec=poweroff
+StartupNotify=true
+Terminal=false
+Icon=power_button
+Type=Application
