@@ -43,7 +43,7 @@ def format_device(device_path):
                        "p\n"     # This partition is a primary one
                        "3\n"     # This is the partition number 3
                        "\n"      # We use the default start sector
-                       "+32M\n"  # And a size of 32M
+                       "\n"  		 # And the rest of the space available
                        "t\n3\n"  # We change its type
                        "83\n"    # To 0x83 (ext*)
 
