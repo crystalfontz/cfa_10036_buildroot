@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# board defaults, do not change in running system. Change /env/config
+# instead
+
+global.hostname=cfa10036
+global.linux.bootargs.base="console=ttyAMA0,115200"
+
+# Setup the USB related settings
+global linux.bootargs.otg.man="g_ether.iManufacturer=Crystalfontz"
+global linux.bootargs.otg.product="g_ether.iProduct=CFA-10036"
+
+# Disable the console blank
+global linux.bootargs.consoleblank="consoleblank=0"
